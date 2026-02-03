@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Just One Question 💖</title>
+  <style>
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Comic Sans MS', cursive;
+      overflow: hidden;
+    }
+
+    .box {
+	  background: white;
+	  padding: 70px 90px;
+	  border-radius: 30px;
+	  text-align: center;
+	  min-width: 420px;
+	  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+	  z-index: 2;
+	  animation: softGlow 3s ease-in-out infinite;
+	}
+	@keyframes softGlow {
+	  0% { box-shadow: 0 15px 35px rgba(0,0,0,0.25); }
+	  50% { box-shadow: 0 18px 45px rgba(255, 77, 109, 0.35); }
+	  100% { box-shadow: 0 15px 35px rgba(0,0,0,0.25); }
+	}
+
+
+    h1 {
+	  font-size: 36px;
+	  font-family: 'Pacifico', cursive;
+	  margin-bottom: 40px;
+	  color: #ff4d6d;
+	}
+
+    button {
+	  padding: 18px 40px;
+	  font-size: 22px;
+	  border: none;
+	  border-radius: 40px;
+	  cursor: pointer;
+	  margin: 15px;
+	  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+	
+	@keyframes pulse {
+	  0% { transform: scale(1); }
+	  50% { transform: scale(1.08); }
+	  100% { transform: scale(1); }
+	}
+	button:hover {
+	  transform: scale(1.08);
+	  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+	}
+
+  #yes {
+	  background: linear-gradient(135deg, #ff4d6d, #ff758f);
+	  color: white;
+	  font-weight: bold;
+	  animation: pulse 1.5s infinite;
+	}
+
+	#no-placeholder {
+	  display: inline-block;
+	  width: 180px;   
+	  height: 60px;
+	}
+
+    #no {
+	  background: #adb5bd;
+	  color: white;
+	  z-index: 3;
+	  transition: left 0.2s ease, top 0.2s ease;
+	}
+	
+	#gif {
+	  display: none;
+	  margin: 25px auto 0;
+	  width: 350px;
+	  max-width: 70%;
+	  height: auto;
+	  animation: fadeIn 0.6s ease;
+	}
+
+
+	@keyframes fadeIn {
+	  from { opacity: 0; transform: scale(0.9); }
+	  to { opacity: 1; transform: scale(1); }
+	}
+	#blur-overlay {
+	  position: fixed;
+	  inset: 0;
+	  backdrop-filter: blur(8px);
+	  background: rgba(255, 255, 255, 0.15);
+	  opacity: 0;
+	  pointer-events: none;
+	  transition: opacity 0.5s ease;
+	  z-index: 1;
+	}
+	.fade-text {
+		opacity: 0;
+	}
+
+	.fade-text.show {
+	  animation: fadeTextIn 0.9s ease forwards;
+	}
+
+	@keyframes fadeTextIn {
+	  from {
+		opacity: 0;
+		transform: translateY(10px);
+	  }
+	  to {
+		opacity: 1;
+		transform: translateY(0);
+	  }
+	}
+
+	.fade-in {
+	  opacity: 0;
+	  animation: fadeTextIn 0.9s ease forwards;
+	}
+
+	#second-line {
+	  font-size: 20px;
+	  margin-top: 10px;
+	  color: #555;
+	}
+	.question-wrap {
+	  margin-bottom: 30px;
+	}
+
+	.emoji-top {
+	  font-size: 42px;
+	  margin-bottom: 10px;
+	}
+
+	.emoji-bottom {
+	  font-size: 28px;
+	  margin-top: 8px;
+	}
+
+	.side-note {
+	  margin-top: 14px;
+	  font-size: 16px;
+	  color: #777;
+	  font-style: italic;
+	}
+
+
+
+
+
+  </style>
+</head>
+<body>
+
+  <div class="box">
+	<div class="question-wrap" id="initial-content">
+	  <div class="emoji-top">💖✨</div>
+	  <h1>Tukku, will you be my Valentine?</h1>
+	  <div class="emoji-bottom">🥹👉👈</div>
+	  <p class="side-note">No pressure. Just a smile from you would be enough 💛</p>
+	</div>
+
+	<h1 id="question" style="display:none;"></h1>
+	<p id="second-line"></p>
+
+
+    <button id="yes">Yes 😍</button>
+	<span id="no-placeholder">
+	  <button id="no">No 🙄</button>
+	</span>
+
+    <img id="gif" src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif">
+  </div>
+
+<div id="blur-overlay"></div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+
+
+<script>
+const yesBtn = document.getElementById("yes");
+const noBtn = document.getElementById("no");
+const gif = document.getElementById("gif");
+const question = document.getElementById("question");
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContextClass();
+
+let escaped = false;
+
+// NO button escape
+noBtn.addEventListener("mouseover", () => {
+// 🔥 Make YES bigger (reliable way)
+  yesBtn.style.transform = "scale(3)";
+  yesBtn.style.boxShadow = "0 14px 30px rgba(255, 77, 109, 0.45)";
+  if (!escaped) {
+    const rect = noBtn.getBoundingClientRect();
+    //noBtn.style.position = "absolute";
+	noBtn.style.position = "fixed";
+    noBtn.style.left = rect.left + "px";
+    noBtn.style.top = rect.top + "px";
+    escaped = true;
+  }
+
+  const padding = 30;
+  const x =
+    Math.random() *
+    (window.innerWidth - noBtn.offsetWidth - padding);
+  const y =
+    Math.random() *
+    (window.innerHeight - noBtn.offsetHeight - padding);
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+});
+
+
+function playPopSound() {
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(900, audioCtx.currentTime);
+
+  gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(
+    0.001,
+    audioCtx.currentTime + 0.12
+  );
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + 0.12);
+}
+
+function vibrateTiny() {
+  if (navigator.vibrate) {
+    navigator.vibrate(40); // tiny haptic tap
+  }
+}
+
+
+yesBtn.addEventListener("click", () => {
+
+  document.getElementById("initial-content").style.display = "none";
+
+  // Show GIF
+  gif.style.display = "block";
+
+  // Hide buttons
+  yesBtn.style.display = "none";
+  noBtn.style.display = "none";
+
+  // Play pop sound
+  playPopSound();
+
+	// 📳 Mobile haptic
+  vibrateTiny();
+  
+  // Blur + text reveal
+  document.getElementById("blur-overlay").style.opacity = "1";
+  // Update main text
+question.style.display = "block";
+question.innerText = "Somehow, I knew your answer already ✨";
+question.classList.remove("fade-in");
+void question.offsetWidth; // force reflow
+question.classList.add("fade-in");
+
+// Second line fade-in
+const secondLine = document.getElementById("second-line");
+setTimeout(() => {
+  secondLine.innerText = "Still feels special, doesn’t it? 💖";
+  secondLine.classList.add("fade-in");
+}, 1800);
+
+  // 🎉 Main confetti blast
+  confetti({
+    particleCount: 240,
+    spread: 90,
+    origin: { y: 0.6 }
+  });
+
+  // 🎊 Side bursts (adds drama)
+  setTimeout(() => {
+    confetti({
+      particleCount: 120,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 }
+    });
+    confetti({
+      particleCount: 120,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 }
+    });
+  }, 180);
+});
+
+</script>
+</body>
+</html>
