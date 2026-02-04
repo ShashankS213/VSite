@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Just One Question 💖</title>
   <style>
+  *,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 	body {
 	  height: 100vh;
 	  background: linear-gradient(
@@ -19,7 +25,7 @@
 	  justify-content: center;
 	  align-items: center;
 	  font-family: 'Comic Sans MS', cursive;
-	  overflow: hidden;
+	  overflow-x: hidden;
 	}
 
 	@keyframes gradientMove {
@@ -223,7 +229,7 @@
 	@media (max-width: 768px) {
 
   body {
-    justify-content: center;   
+    justify-content: flex-start;   
     align-items: stretch;
     padding: 40px 16px 48px;
     height: auto;
@@ -232,8 +238,9 @@
 
 
 	  .box {
-    width: calc(100% - 32px);  
-	max-width: 520px;
+	  min-width: 0 !important;	
+    width: calc(100% - 32px); 
+    max-width: 520px;
     margin: 0 auto 40px;
     padding: 36px 22px 42px;
     border-radius: 28px;
@@ -315,7 +322,7 @@ let escaped = false;
 if (!isMobile) {
 	noBtn.addEventListener("mouseover", () => {
 	// 🔥 Make YES bigger (reliable way)
-	  yesBtn.style.transform = "scale(2)";
+	  yesBtn.style.transform = "scale(1.2)";
 	  yesBtn.style.boxShadow = "0 14px 30px rgba(255, 77, 109, 0.45)";
 	  if (!escaped) {
 		const rect = noBtn.getBoundingClientRect();
@@ -447,4 +454,3 @@ setTimeout(() => {
 </script>
 </body>
 </html>
-
