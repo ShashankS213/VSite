@@ -2,17 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Just One Question 💖</title>
   <style>
-    body {
-      height: 100vh;
-      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Comic Sans MS', cursive;
-      overflow: hidden;
-    }
+	body {
+	  height: 100vh;
+	  background: linear-gradient(
+		135deg,
+		#ff9a9e,
+		#fad0c4,
+		#ffd6e0
+	  );
+	  background-size: 300% 300%;
+	  animation: gradientMove 10s ease infinite;
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  font-family: 'Comic Sans MS', cursive;
+	  overflow: hidden;
+	}
+
+	@keyframes gradientMove {
+	  0% { background-position: 0% 50%; }
+	  50% { background-position: 100% 50%; }
+	  100% { background-position: 0% 50%; }
+	}
+
 
     .box {
 	  background: white;
@@ -135,8 +150,24 @@
 	  margin-bottom: 30px;
 	}
 
+	@keyframes softBeat {
+	  0% {
+		transform: scale(1);
+	  }
+	  10% {
+		transform: scale(1.08);
+	  }
+	  20% {
+		transform: scale(1);
+	  }
+	  100% {
+		transform: scale(1);
+	  }
+	}
+
 	.emoji-top {
-	  font-size: 42px;
+	  font-size: 52px; 
+	  animation: softBeat 3s ease-in-out infinite;
 	  margin-bottom: 10px;
 	}
 
@@ -152,20 +183,103 @@
 	  font-style: italic;
 	}
 
+	.ps-note {
+	  font-size: 13px;
+	  color: #aaa;
+	  margin-top: 6px;
+	}
+	.footer-note {
+	  margin-top: 30px;
+	  font-size: 14px;
+	  color: #999;
+	  font-style: italic;
+	}
+	@keyframes shake {
+	  0% { transform: translateX(0); }
+	  20% { transform: translateX(-4px); }
+	  40% { transform: translateX(4px); }
+	  60% { transform: translateX(-4px); }
+	  80% { transform: translateX(4px); }
+	  100% { transform: translateX(0); }
+	}
+
+	.shake {
+	  animation: shake 0.4s;
+	}
+
+	.no-msg {
+	  position: fixed;
+	  bottom: 20%;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  background: white;
+	  padding: 10px 16px;
+	  border-radius: 20px;
+	  font-size: 14px;
+	  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+	  z-index: 10;
+	}
+	/* 📱 Mobile optimizations */
+	@media (max-width: 768px) {
+
+  body {
+    justify-content: flex-start;   
+    align-items: stretch;
+    padding: 40px 16px 48px;
+    height: auto;
+    min-height: 100vh;
+  }
 
 
+	  .box {
+    width: calc(100% - 32px);  
+	max-width: 520px;
+    margin: 0 auto 40px;
+    padding: 36px 22px 42px;
+    border-radius: 28px;
+  }
 
+	 h1 {
+		line-height: 1.25;
+	  }
 
+  .question-wrap > * {
+    margin-bottom: 12px;
+  }
+  .question-wrap > *:last-child {
+    margin-bottom: 0;
+	}
+
+  .emoji-top {
+    margin-bottom: 16px;
+  }
+
+  .emoji-bottom {
+    margin-top: 12px;
+  }
+
+  .side-note {
+    margin-top: 16px;
+    line-height: 1.4;
+  }
+
+  .ps-note {
+    margin-top: 10px;
+	line-height: 1.4;
+  }
+
+}
   </style>
 </head>
 <body>
 
   <div class="box">
 	<div class="question-wrap" id="initial-content">
-	  <div class="emoji-top">💖✨</div>
+	  <div class="emoji-top">💖</div>
 	  <h1>Tukku, will you be my Valentine?</h1>
 	  <div class="emoji-bottom">🥹👉👈</div>
-	  <p class="side-note">No pressure. Just a smile from you would be enough 💛</p>
+	  <p class="side-note">No pressure. Just wanted to ask you this properly 💛</p>
+	  <p class="ps-note">P.S. Even from different cities, this still feels special 🌍💖</p>
 	</div>
 
 	<h1 id="question" style="display:none;"></h1>
@@ -178,6 +292,7 @@
 	</span>
 
     <img id="gif" src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif">
+	<p class="footer-note">Made with a smile, thinking of you 💛</p>
   </div>
 
 <div id="blur-overlay"></div>
@@ -186,6 +301,7 @@
 
 
 <script>
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 const yesBtn = document.getElementById("yes");
 const noBtn = document.getElementById("no");
 const gif = document.getElementById("gif");
@@ -196,30 +312,48 @@ const audioCtx = new AudioContextClass();
 let escaped = false;
 
 // NO button escape
-noBtn.addEventListener("mouseover", () => {
-// 🔥 Make YES bigger (reliable way)
-  yesBtn.style.transform = "scale(3)";
-  yesBtn.style.boxShadow = "0 14px 30px rgba(255, 77, 109, 0.45)";
-  if (!escaped) {
-    const rect = noBtn.getBoundingClientRect();
-    //noBtn.style.position = "absolute";
-	noBtn.style.position = "fixed";
-    noBtn.style.left = rect.left + "px";
-    noBtn.style.top = rect.top + "px";
-    escaped = true;
-  }
+if (!isMobile) {
+	noBtn.addEventListener("mouseover", () => {
+	// 🔥 Make YES bigger (reliable way)
+	  yesBtn.style.transform = "scale(2)";
+	  yesBtn.style.boxShadow = "0 14px 30px rgba(255, 77, 109, 0.45)";
+	  if (!escaped) {
+		const rect = noBtn.getBoundingClientRect();
+		//noBtn.style.position = "absolute";
+		noBtn.style.position = "fixed";
+		noBtn.style.left = rect.left + "px";
+		noBtn.style.top = rect.top + "px";
+		escaped = true;
+	  }
 
-  const padding = 30;
-  const x =
-    Math.random() *
-    (window.innerWidth - noBtn.offsetWidth - padding);
-  const y =
-    Math.random() *
-    (window.innerHeight - noBtn.offsetHeight - padding);
+	  const padding = 30;
+	  const x =
+		Math.random() *
+		(window.innerWidth - noBtn.offsetWidth - padding);
+	  const y =
+		Math.random() *
+		(window.innerHeight - noBtn.offsetHeight - padding);
 
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
-});
+	  noBtn.style.left = x + "px";
+	  noBtn.style.top = y + "px";
+	});
+}
+if (isMobile) {
+  noBtn.addEventListener("click", () => {
+    noBtn.classList.add("shake");
+
+    // Optional cute message
+    const msg = document.createElement("div");
+    msg.innerText = "Hehe… not so easy 😄";
+    msg.className = "no-msg";
+    document.body.appendChild(msg);
+
+    setTimeout(() => {
+      noBtn.classList.remove("shake");
+      msg.remove();
+    }, 1200);
+  });
+}
 
 
 function playPopSound() {
@@ -282,7 +416,7 @@ question.classList.add("fade-in");
 // Second line fade-in
 const secondLine = document.getElementById("second-line");
 setTimeout(() => {
-  secondLine.innerText = "Still feels special, doesn’t it? 💖";
+  secondLine.innerText = "Still feels really nice, doesn’t it? 💖";
   secondLine.classList.add("fade-in");
 }, 1800);
 
